@@ -1,66 +1,127 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package proyekpisau;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.Scanner;
+
 
 public class MainSistem {
     public static void main(String[] args){
+        Scanner input = new Scanner(System.in);
+
         // 1. Inisialisasi User (Simulasi Registrasi & Login)
-        User user1 = new User("mendez_12", "rahasia123", "Shawn Mendes");
-        System.out.println("Sistem Manajemen Pembayaran Digital");
-        System.out.println("Selamat Datang, " + user1.getNamaLengkap());
-        System.out.println();
+        System.out.println("Selamat Datang di Sistem Manajeman Pembayaran Pisau <3");
+        System.out.print("Punya akun? Yes(1)/No(0): ");
+        int regis = input.nextInt();
+        input.nextLine();
+        if(regis == 1){
+            System.out.print("Username: ");
+            String inputUser = input.nextLine();
+            System.out.print("Password: ");
+            String inputPass = input.nextLine();
 
-        // 2. Menambah Metode E-Money (Pilihan dari 4 metode yang tersedia)
-        Mandiri mandiri1 = new Mandiri("141-00-1234567");
-        Gopay gopay1 = new Gopay("0812-3456-7890");
-        BCA bca1 = new BCA("882-099-1122");
-        Dana dana1 = new Dana("0855-1111-2222");
+            try {
+                Connection conn = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/sistem_pisau", "root", ""
+                );
 
-        user1.tambahMetode(mandiri1);
-        user1.tambahMetode(gopay1);
-        user1.tambahMetode(bca1);
-        user1.tambahMetode(dana1);
-        System.out.println();
+                // Query untuk mengecek apakah username dan password cocok
+                String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setString(1, inputUser);
+                ps.setString(2, inputPass);
 
-        // 3. Update Saldo (Simulasi Update Keuangan Otomatis dari Third Party)
-        // System.out.println("=== SINKRONISASI DATA KEUANGAN ===");
-        mandiri1.setSaldo(5000000);
-        gopay1.setSaldo(150000);   
-        bca1.setSaldo(2750000);    
-        dana1.setSaldo(45000);     
-        
-        System.out.println("Data berhasil diperbarui dari E-Banking.");
-        System.out.println();
+                ResultSet rs = ps.executeQuery();
 
-        // Laporan Tahunan
-        user1.setLaporan(new LaporanTahunan("2026-12-31", 2026));
-        user1.tampilkanLaporanSaya();
-        System.out.println();
-        
-        
-        //--------
-        User user2 = new User("manda", "123rrrrawrr", "Amanda");
-        System.out.println("Sistem Manajemen Pembayaran Digital");
-        System.out.println("Selamat Datang, " + user2.getNamaLengkap());
-        System.out.println();
-        
-        Mandiri mandiri2 = new Mandiri("141-00-1234569");
-        Gopay gopay2 = new Gopay("0812-3456-7899");
-        
-        user2.tambahMetode(mandiri2);
-        user2.tambahMetode(gopay2);
-        System.out.println();
-        
-        mandiri2.setSaldo(5000);
-        gopay2.setSaldo(20000);  
-        
-        System.out.println("Data berhasil diperbarui dari E-Banking.");
-        System.out.println();
+                if (rs.next()) {
+                    // Jika data ditemukan, buat objek User dari data database
+                    User userAktif = new User(
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("email"),
+                        rs.getString("nama_lengkap")
+                    );
+                    
+                    System.out.println("\nLogin Berhasil!");
+                    System.out.println("Selamat Datang, " + userAktif.getNamaLengkap() + "!");
+                } else {
+                    System.out.println("\nLogin Gagal! Username atau Password salah.");
+                }
 
-        // Laporan Bulanan
-        user2.setLaporan(new LaporanBulanan("2026-12-31", "Mei"));
-        user2.tampilkanLaporanSaya();
+                conn.close(); // Jangan lupa tutup koneksi
+            } catch (Exception e) {
+                System.out.println("Error Login: " + e.getMessage());
+            }
+        } 
+        else {
+            System.out.print("Nama Lengkap: ");
+            String namaLengkap = input.nextLine();
+            System.out.print("Username: ");
+            String username = input.nextLine();
+            System.out.print("Email: ");
+            String email = input.nextLine();  
+            System.out.print("Password: ");
+            String password = input.nextLine(); 
+
+            User user1 = new User(username, password, email, namaLengkap);   
+
+            try {
+                Connection conn = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/sistem_pisau", "root", ""
+            );
+            
+                String sql = "INSERT INTO users (username, password, email, nama_lengkap) VALUES (?, ?, ?, ?)";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                
+                // ambil dari object
+                ps.setString(1, user1.getUsername());
+                ps.setString(2, user1.getPassword());
+                ps.setString(3, user1.getEmail());
+                ps.setString(4, user1.getNamaLengkap());
+                
+                
+                ps.executeUpdate();
+                
+                System.out.println("Data berhasil disimpan!");
+                
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        }
+
+
+        // User owner = new User("mendez_12", "rahasia123", "shawn@mail","Shawn Mendes");
+        // System.out.println("Sistem Manajemen Pembayaran Digital");
+        // System.out.println("Selamat Datang, " + owner.getNamaLengkap());
+        // System.out.println();
+
+        // // 2. Menambah Metode E-Money (Pilihan dari 4 metode yang tersedia)
+        // Mandiri mandiri = new Mandiri("141-00-1234567");
+        // Gopay gopay = new Gopay("0812-3456-7890");
+        // BCA bca = new BCA("882-099-1122");
+        // Dana dana = new Dana("0855-1111-2222");
+
+        // owner.tambahMetode(mandiri);
+        // owner.tambahMetode(gopay);
+        // owner.tambahMetode(bca);
+        // owner.tambahMetode(dana);
+        // System.out.println();
+
+        // // 3. Update Saldo (Simulasi Update Keuangan Otomatis dari Third Party)
+        // // System.out.println("=== SINKRONISASI DATA KEUANGAN ===");
+        // mandiri.setSaldo(5000000);
+        // gopay.setSaldo(150000);   
+        // bca.setSaldo(2750000);    
+        // dana.setSaldo(45000);     
+        
+        // System.out.println("Data berhasil diperbarui dari E-Banking.");
+        // System.out.println();
+
+        // // Laporan Tahunan
+        // owner.setLaporan(new LaporanTahunan("2026-12-31", 2026));
+        // owner.tampilkanLaporanSaya();
+        // System.out.println();
     }
 }

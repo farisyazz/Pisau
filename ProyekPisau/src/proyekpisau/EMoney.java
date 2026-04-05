@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package proyekpisau;
 
 public class EMoney {
@@ -18,6 +15,7 @@ public class EMoney {
         System.out.println("Memulai koneksi dengan " + JenisEmoney);
     }
     
+    //getter
     public double getSaldo(){
         return saldo;
     }
@@ -30,13 +28,15 @@ public class EMoney {
         return tersambung;
     }
     
+    //setter
     public void setSaldo(double saldo){
         this.saldo = saldo;
     }
     
-    public void cekSaldo(){
-        System.out.println("Jumlah saldo di " + JenisEmoney + ": Rp " + saldo);
-    }
+    //others
+    // public void feeBulanan(){
+    //     System.out.println("Tidak ada fee bulanan.");
+    // }
 }
 
 class Mandiri extends EMoney {
@@ -46,24 +46,14 @@ class Mandiri extends EMoney {
         super("Mandiri");
         this.noRekMandiri = noRekMandiri;
     }
+
+    public String getNoRekMandiri(){
+        return noRekMandiri;
+    }
     
     @Override
     public void verifikasi(){
         System.out.println("Memulai koneksi " + JenisEmoney + " dengan nomor rekening " + noRekMandiri);
-    }
-}
-
-class Gopay extends EMoney {
-    private String noTelp;
-    
-    public Gopay(String noTelp){
-        super("Gopay");
-        this.noTelp = noTelp;
-    }
-    
-    @Override
-    public void verifikasi(){
-        System.out.println("Memulai koneksi " + JenisEmoney + " dengan nomor telepon " + noTelp);
     }
 }
 
@@ -74,10 +64,32 @@ class BCA extends EMoney {
         super("BCA");
         this.noRekBCA = noRekBCA;
     }
+
+    public String getNoRekBCA(){
+        return noRekBCA;
+    }
     
     @Override
     public void verifikasi(){
         System.out.println("Memulai koneksi " + JenisEmoney + " dengan nomor rekening " + noRekBCA);
+    }
+}
+
+class Gopay extends EMoney {
+    private String noTelp;
+    
+    public Gopay(String noTelp){
+        super("Gopay");
+        this.noTelp = noTelp;
+    }
+
+    public String getnoTelp(){
+        return noTelp;
+    }
+    
+    @Override
+    public void verifikasi(){
+        System.out.println("Memulai koneksi " + JenisEmoney + " dengan nomor telepon " + noTelp);
     }
 }
 
@@ -88,6 +100,10 @@ class Dana extends EMoney {
     public Dana(String noTelp){
         super("Gopay");
         this.noTelp = noTelp;
+    }
+
+    public String getnoTelp(){
+        return noTelp;
     }
     
     @Override
