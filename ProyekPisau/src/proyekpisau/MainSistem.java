@@ -90,38 +90,5 @@ public class MainSistem {
                 System.out.println("Error: " + e.getMessage());
             }
         }
-
-
-        // User owner = new User("mendez_12", "rahasia123", "shawn@mail","Shawn Mendes");
-        // System.out.println("Sistem Manajemen Pembayaran Digital");
-        // System.out.println("Selamat Datang, " + owner.getNamaLengkap());
-        // System.out.println();
-
-        // // 2. Menambah Metode E-Money (Pilihan dari 4 metode yang tersedia)
-        // Mandiri mandiri = new Mandiri("141-00-1234567");
-        // Gopay gopay = new Gopay("0812-3456-7890");
-        // BCA bca = new BCA("882-099-1122");
-        // Dana dana = new Dana("0855-1111-2222");
-
-        // owner.tambahMetode(mandiri);
-        // owner.tambahMetode(gopay);
-        // owner.tambahMetode(bca);
-        // owner.tambahMetode(dana);
-        // System.out.println();
-
-        // // 3. Update Saldo (Simulasi Update Keuangan Otomatis dari Third Party)
-        // // System.out.println("=== SINKRONISASI DATA KEUANGAN ===");
-        // mandiri.setSaldo(5000000);
-        // gopay.setSaldo(150000);   
-        // bca.setSaldo(2750000);    
-        // dana.setSaldo(45000);     
-        
-        // System.out.println("Data berhasil diperbarui dari E-Banking.");
-        // System.out.println();
-
-        // // Laporan Tahunan
-        // owner.setLaporan(new LaporanTahunan("2026-12-31", 2026));
-        // owner.tampilkanLaporanSaya();
-        // System.out.println();
     }
 }
