@@ -2,19 +2,17 @@ package proyekpisau;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.RescaleOp;
+//import java.awt.image.RescaleOp;
 import java.sql.*;
 
 public class Authentication extends JFrame {
     private final String DB_URL = "jdbc:mysql://localhost:3306/sistem_pisau";
     private final String DB_USER = "root";
     private final String DB_PASSWORD = "";
-    Connection conn;
-
     private CardLayout cardLayout = new CardLayout();
     private JPanel mainPanel = new JPanel(cardLayout);
 
-    public Authentication(){
+    public Authentication() {
         setTitle("Sistem Manajeman Pembayaran PISAU");
         setSize(400, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -27,7 +25,7 @@ public class Authentication extends JFrame {
         setVisible(true);
     }
 
-    private JPanel loginPanel(){
+    private JPanel loginPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(null);
         JTextField txtUser = new JTextField();
@@ -55,47 +53,47 @@ public class Authentication extends JFrame {
         btnToReg.setBounds(100, 275, 200, 35);
         panel.add(btnToReg);
 
-        //db
-        try {
-            conn = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD
-            );
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Failed To Connect!");
-        }
-
-        //action
+        //pindah ke page register
         btnToReg.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                try {
-                    cardLayout.show(mainPanel, "Register");
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
-                }
+                cardLayout.show(mainPanel, "Register");
             }
         });
 
+        //login
         btnLogin.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                try {
-                    String username = txtUser.getText();
-                    String password = new String(txtPass.getPassword());
+                String username = txtUser.getText();
+                String password = new String(txtPass.getPassword());
 
+                if (username.isEmpty() || password.isEmpty()) {
+                    JOptionPane.showMessageDialog(Authentication.this, "Username dan Password tidak boleh kosong!");
+                    return;
+                }
+
+                try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
                     String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
                     PreparedStatement ps = conn.prepareStatement(sql);
                     ps.setString(1, username);
                     ps.setString(2, password);
                     ResultSet rs = ps.executeQuery();
 
-                    if(rs.next()){
-                        Authentication.this.dispose();
-                        User loggedUser = new User(rs.getString("username"), rs.getString("password"), rs.getString("email"),  rs.getString("nama_lengkap"));
-                        new Dashboard(loggedUser).setVisible(true);
-                    } else{
-                        JOptionPane.showMessageDialog(Authentication.this, "Account Not Found!");
+                    if (rs.next()) {
+                        Authentication.this.dispose(); //tutup window login
+                        User loggedUser = new User(
+                            rs.getString("username"), 
+                            rs.getString("password"), 
+                            rs.getString("email"),  
+                            rs.getString("nama_lengkap")
+                        );
+                        new Dashboard(loggedUser).setVisible(true); //buka Dashboard
+                    } else {
+                        JOptionPane.showMessageDialog(Authentication.this, "Account Not Found! Username atau Password salah.");
                     }
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(null, "Database Error: Pastikan XAMPP menyala.\nDetail: " + ex.getMessage());
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+                    JOptionPane.showMessageDialog(null, "System Error: " + ex.getMessage());
                 }
             }
         });
@@ -143,86 +141,63 @@ public class Authentication extends JFrame {
         btnToLogin.setBounds(100, 330, 200, 35);
         panel.add(btnToLogin);
 
-        //db
-        try {
-            conn = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD
-            );
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Failed To Connect!");
-        }
-
-        //action
+        //pindah ke page Login
         btnToLogin.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                try {
-                    cardLayout.show(mainPanel, "Login");
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
-                }
+                cardLayout.show(mainPanel, "Login");
             }
         });
 
+        //register
         btnReg.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                try {
-                    String namaLengkap = txtNama.getText();
-                    String email = txtEmail.getText();
-                    String username = txtUser.getText();
-                    String password = new String(txtPass.getPassword());
+                String namaLengkap = txtNama.getText();
+                String email = txtEmail.getText();
+                String username = txtUser.getText();
+                String password = new String(txtPass.getPassword());
 
-                    if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
-                        JOptionPane.showMessageDialog(Authentication.this, "Fields cannot be empty!");
-                        return;
-                    }
+                if (username.isEmpty() || password.isEmpty() || email.isEmpty() || namaLengkap.isEmpty()) {
+                    JOptionPane.showMessageDialog(Authentication.this, "Semua kolom harus diisi!");
+                    return;
+                }
 
+                try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+                    
+                    //cek username sudah ada/blm
                     String checkSql = "SELECT * FROM users WHERE username = ?";
                     PreparedStatement checkPs = conn.prepareStatement(checkSql);
                     checkPs.setString(1, username);
                     ResultSet checkRs = checkPs.executeQuery();
                     
-                    if(checkRs.next()){
-                        JOptionPane.showMessageDialog(Authentication.this, "Username already taken.");
-                    }else{
+                    if (checkRs.next()) {
+                        JOptionPane.showMessageDialog(Authentication.this, "Username already taken. Silakan gunakan username lain.");
+                    } else {
+                        //klo belum ada, masukin data baru
                         String insertSql = "INSERT INTO users (nama_lengkap, email, username, password) VALUES (?, ?, ?, ?)";
-                            PreparedStatement ps = conn.prepareStatement(insertSql);
-                            ps.setString(1, namaLengkap);
-                            ps.setString(2, email);
-                            ps.setString(3, username);
-                            ps.setString(4, password);
-                            int rowsAffected = ps.executeUpdate();
-                        if(rowsAffected > 0){
+                        PreparedStatement ps = conn.prepareStatement(insertSql);
+                        ps.setString(1, namaLengkap);
+                        ps.setString(2, email);
+                        ps.setString(3, username);
+                        ps.setString(4, password);
+                        
+                        int rowsAffected = ps.executeUpdate();
+                        if (rowsAffected > 0) {
                             JOptionPane.showMessageDialog(Authentication.this, "Registration Successful!");
-                            Authentication.this.dispose();
+                            Authentication.this.dispose(); //tutup window register
+                            
+                            //login otomatis dan masuk ke dashboard
                             User newUser = new User(username, password, email, namaLengkap);
                             new Dashboard(newUser).setVisible(true);
                         }
                     }
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(null, "Database Error: Pastikan XAMPP menyala.\nDetail: " + ex.getMessage());
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+                    JOptionPane.showMessageDialog(null, "System Error: " + ex.getMessage());
                 }
             }
         });
 
-        // btnReg.addActionListener(e -> {
-        //     try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-        //         // Using INSERT pattern [cite: 7]
-        //         String sql = "INSERT INTO users (username, password, fullname, email) VALUES (?, ?, ?, ?)";
-        //         PreparedStatement ps = conn.prepareStatement(sql);
-        //         ps.setString(1, txtUser.getText());
-        //         ps.setString(2, new String(txtPass.getPassword()));
-        //         ps.setString(3, txtNama.getText());
-        //         ps.setString(4, txtEmail.getText());
-
-        //         if (ps.executeUpdate() > 0) { // Check if successful [cite: 18, 22]
-        //             JOptionPane.showMessageDialog(this, "Registered!");
-        //             this.dispose();
-        //             new Dashboard(txtNama.getText()).setVisible(true);
-        //         }
-        //     } catch (SQLException ex) {
-        //         JOptionPane.showMessageDialog(this, "Registration failed!");
-        //     }
-        // });
         return panel;
     }
 }
