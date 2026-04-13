@@ -63,7 +63,7 @@ public class Authentication extends JFrame {
             JOptionPane.showMessageDialog(null, "Failed To Connect!");
         }
 
-        //action
+        //ke page register
         btnToReg.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -74,6 +74,7 @@ public class Authentication extends JFrame {
             }
         });
 
+        //login
         btnLogin.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -151,7 +152,7 @@ public class Authentication extends JFrame {
             JOptionPane.showMessageDialog(null, "Failed To Connect!");
         }
 
-        //action
+        //ke page login
         btnToLogin.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -162,6 +163,7 @@ public class Authentication extends JFrame {
             }
         });
 
+        //regist
         btnReg.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -204,26 +206,6 @@ public class Authentication extends JFrame {
                 }
             }
         });
-
-        // btnReg.addActionListener(e -> {
-        //     try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-        //         // Using INSERT pattern [cite: 7]
-        //         String sql = "INSERT INTO users (username, password, fullname, email) VALUES (?, ?, ?, ?)";
-        //         PreparedStatement ps = conn.prepareStatement(sql);
-        //         ps.setString(1, txtUser.getText());
-        //         ps.setString(2, new String(txtPass.getPassword()));
-        //         ps.setString(3, txtNama.getText());
-        //         ps.setString(4, txtEmail.getText());
-
-        //         if (ps.executeUpdate() > 0) { // Check if successful [cite: 18, 22]
-        //             JOptionPane.showMessageDialog(this, "Registered!");
-        //             this.dispose();
-        //             new Dashboard(txtNama.getText()).setVisible(true);
-        //         }
-        //     } catch (SQLException ex) {
-        //         JOptionPane.showMessageDialog(this, "Registration failed!");
-        //     }
-        // });
         return panel;
     }
 }

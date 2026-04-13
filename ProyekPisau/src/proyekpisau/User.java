@@ -1,11 +1,8 @@
-
 package proyekpisau;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-
     private int idUser;
     private String namaLengkap;
     private String username;
@@ -90,6 +87,5 @@ public class User {
             total += e.getSaldo();
         }
         return total;
-    }
-    
+    } 
 }

@@ -1,4 +1,3 @@
-
 package proyekpisau;
 
 public class EMoney {
@@ -40,11 +39,6 @@ public class EMoney {
     public void setSaldo(int saldo){
         this.saldo = saldo;
     }
-    
-    //others
-    // public void feeBulanan(){
-    //     System.out.println("Tidak ada fee bulanan.");
-    // }
 }
 
 class Mandiri extends EMoney {
@@ -109,7 +103,7 @@ class Dana extends EMoney {
     private String noTelp;
     
     public Dana(int idUserEmoney, String noTelp, int saldo){
-        super(idUserEmoney, "Gopay", saldo);
+        super(idUserEmoney, "Dana", saldo);
         this.noTelp = noTelp;
     }
 
