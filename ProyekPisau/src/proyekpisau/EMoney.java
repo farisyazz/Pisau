@@ -2,21 +2,29 @@
 package proyekpisau;
 
 public class EMoney {
+    protected int idUserEmoney;
     protected String JenisEmoney;
-    protected double saldo;
+    protected int saldo;
     protected boolean tersambung;
     
-    public EMoney(String JenisEmoney){
+    public EMoney(int idUserEmoney, String JenisEmoney, int saldo){
+        this.idUserEmoney = idUserEmoney;
         this.JenisEmoney = JenisEmoney;
+        this.saldo = saldo;
         this.tersambung = false;
     }
     
     public void verifikasi(){
-        System.out.println("Memulai koneksi dengan " + JenisEmoney);
+        this.tersambung = true;
+        // System.out.println("Starting connection with " + JenisEmoney);
     }
     
     //getter
-    public double getSaldo(){
+    public int getIdUserEmoney(){
+        return idUserEmoney;
+    }
+
+    public int getSaldo(){
         return saldo;
     }
     
@@ -29,7 +37,7 @@ public class EMoney {
     }
     
     //setter
-    public void setSaldo(double saldo){
+    public void setSaldo(int saldo){
         this.saldo = saldo;
     }
     
@@ -42,8 +50,8 @@ public class EMoney {
 class Mandiri extends EMoney {
     private String noRekMandiri;
     
-    public Mandiri(String noRekMandiri){
-        super("Mandiri");
+    public Mandiri(int idUserEmoney, String noRekMandiri, int saldo){
+        super(idUserEmoney, "Mandiri", saldo);
         this.noRekMandiri = noRekMandiri;
     }
 
@@ -53,15 +61,16 @@ class Mandiri extends EMoney {
     
     @Override
     public void verifikasi(){
-        System.out.println("Memulai koneksi " + JenisEmoney + " dengan nomor rekening " + noRekMandiri);
+        this.tersambung = true;
+        // System.out.println("Starting connection with " + JenisEmoney + " dengan nomor rekening " + noRekMandiri);
     }
 }
 
 class BCA extends EMoney {
     private String noRekBCA;
     
-    public BCA(String noRekBCA){
-        super("BCA");
+    public BCA(int idUserEmoney, String noRekBCA, int saldo){
+        super(idUserEmoney, "BCA", saldo);
         this.noRekBCA = noRekBCA;
     }
 
@@ -71,15 +80,16 @@ class BCA extends EMoney {
     
     @Override
     public void verifikasi(){
-        System.out.println("Memulai koneksi " + JenisEmoney + " dengan nomor rekening " + noRekBCA);
+        this.tersambung = true;
+        // System.out.println("Starting connection with " + JenisEmoney + " dengan nomor rekening " + noRekBCA);
     }
 }
 
 class Gopay extends EMoney {
     private String noTelp;
     
-    public Gopay(String noTelp){
-        super("Gopay");
+    public Gopay(int idUserEmoney, String noTelp, int saldo){
+        super(idUserEmoney, "Gopay", saldo);
         this.noTelp = noTelp;
     }
 
@@ -89,7 +99,8 @@ class Gopay extends EMoney {
     
     @Override
     public void verifikasi(){
-        System.out.println("Memulai koneksi " + JenisEmoney + " dengan nomor telepon " + noTelp);
+        this.tersambung = true;
+        // System.out.println("Starting connection with " + JenisEmoney + " dengan nomor telepon " + noTelp);
     }
 }
 
@@ -97,8 +108,8 @@ class Gopay extends EMoney {
 class Dana extends EMoney {
     private String noTelp;
     
-    public Dana(String noTelp){
-        super("Gopay");
+    public Dana(int idUserEmoney, String noTelp, int saldo){
+        super(idUserEmoney, "Gopay", saldo);
         this.noTelp = noTelp;
     }
 
@@ -108,6 +119,7 @@ class Dana extends EMoney {
     
     @Override
     public void verifikasi(){
-        System.out.println("Memulai koneksi " + JenisEmoney + " dengan nomor telepon " + noTelp);
+        this.tersambung = true;
+        // System.out.println("Starting connection with " + JenisEmoney + " dengan nomor telepon " + noTelp);
     }
 }
