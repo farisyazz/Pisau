@@ -98,7 +98,6 @@ class Gopay extends EMoney {
     }
 }
 
-
 class Dana extends EMoney {
     private String noTelp;
     
