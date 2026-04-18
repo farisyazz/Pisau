@@ -1,3 +1,4 @@
+
 package proyekpisau;
 
 public class EMoney {
@@ -39,6 +40,11 @@ public class EMoney {
     public void setSaldo(int saldo){
         this.saldo = saldo;
     }
+    
+    //others
+    // public void feeBulanan(){
+    //     System.out.println("Tidak ada fee bulanan.");
+    // }
 }
 
 class Mandiri extends EMoney {
@@ -97,6 +103,7 @@ class Gopay extends EMoney {
         // System.out.println("Starting connection with " + JenisEmoney + " dengan nomor telepon " + noTelp);
     }
 }
+
 
 class Dana extends EMoney {
     private String noTelp;

@@ -1,211 +1,223 @@
 package proyekpisau;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+// import javafx.scene.*;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
 import java.sql.*;
 
-public class Authentication extends JFrame {
+public class Authentication extends Application {
     private final String DB_URL = "jdbc:mysql://localhost:3306/sistem_pisau";
     private final String DB_USER = "root";
     private final String DB_PASSWORD = "";
-    Connection conn;
+    private Connection conn;
 
-    private CardLayout cardLayout = new CardLayout();
-    private JPanel mainPanel = new JPanel(cardLayout);
+    private StackPane root = new StackPane();
+    private VBox loginView;
+    private VBox registerView;
 
-    public Authentication(){
-        setTitle("Sistem Manajeman Pembayaran PISAU");
-        setSize(400, 500);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+    @Override
+    public void start(Stage primaryStage) {
+        connectDatabase();
 
-        mainPanel.add(loginPanel(), "Login");
-        mainPanel.add(registerPanel(), "Register");
+        loginView = loginView(primaryStage);
+        registerView = registerView(primaryStage);
 
-        add(mainPanel);
-        setVisible(true);
+        root.getChildren().addAll(loginView, registerView);
+        registerView.setVisible(false); 
+
+        Scene scene = new Scene(root, 400, 500);
+        primaryStage.setTitle("Sistem Manajeman Pembayaran PISAU");
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
-    private JPanel loginPanel(){
-        JPanel panel = new JPanel();
-        panel.setLayout(null);
-        JTextField txtUser = new JTextField();
-        JPasswordField txtPass = new JPasswordField();
-        JButton btnLogin = new JButton("Login");
-        JButton btnToReg = new JButton("Go to Register Instead");
-
-        JLabel lblHeader = new JLabel("Login", JLabel.CENTER);
-        JLabel lblUser = new JLabel("Username: ");
-        JLabel lblPass = new JLabel("Password: ");
-
-        lblHeader.setBounds(0, 25, 400, 40);
-        lblHeader.setFont(new Font("Arial", Font.BOLD, 20));
-        panel.add(lblHeader);
-        lblUser.setBounds(50, 100, 100, 25);
-        panel.add(lblUser);
-        txtUser.setBounds(150, 100, 180, 25);
-        panel.add(txtUser);
-        lblPass.setBounds(50, 150, 100, 25);
-        panel.add(lblPass);
-        txtPass.setBounds(150, 150, 180, 25);
-        panel.add(txtPass);
-        btnLogin.setBounds(100, 220, 200, 35);
-        panel.add(btnLogin);
-        btnToReg.setBounds(100, 275, 200, 35);
-        panel.add(btnToReg);
-
-        //db
+    private void connectDatabase() {
         try {
-            conn = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD
-            );
+            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Failed To Connect!");
+            showAlert("Error", "Failed To Connect to Database!");
         }
-
-        //ke page register
-        btnToReg.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    cardLayout.show(mainPanel, "Register");
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
-                }
-            }
-        });
-
-        //login
-        btnLogin.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    String username = txtUser.getText();
-                    String password = new String(txtPass.getPassword());
-
-                    String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
-                    PreparedStatement ps = conn.prepareStatement(sql);
-                    ps.setString(1, username);
-                    ps.setString(2, password);
-                    ResultSet rs = ps.executeQuery();
-
-                    if(rs.next()){
-                        Authentication.this.dispose();
-                        User loggedUser = new User(rs.getInt("id_user"), rs.getString("username"), rs.getString("password"), rs.getString("email"),  rs.getString("nama_lengkap"));
-                        new Dashboard(loggedUser).setVisible(true);
-                    } else{
-                        JOptionPane.showMessageDialog(Authentication.this, "Account Not Found!");
-                    }
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
-                }
-            }
-        });
-
-        return panel;
     }
 
-    private JPanel registerPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(null);
-        JTextField txtNama = new JTextField();
-        JTextField txtEmail = new JTextField();
-        JTextField txtUser = new JTextField();
-        JPasswordField txtPass = new JPasswordField();
-        JButton btnReg = new JButton("Register");
-        JButton btnToLogin = new JButton("Go to Login Instead");
+    private VBox loginView(Stage stage) {
+        VBox vbox = new VBox(15);
+        vbox.setPadding(new Insets(40));
+        vbox.setAlignment(Pos.CENTER);
 
-        JLabel lblHeader = new JLabel("Register", JLabel.CENTER);
-        JLabel lblNama = new JLabel("Full Name: ");
-        JLabel lblEmail = new JLabel("Email: ");
-        JLabel lblUser = new JLabel("Username: ");
-        JLabel lblPass = new JLabel("Password: ");
+        Label lblHeader = new Label("Login");
+        lblHeader.setFont(Font.font("Arial", FontWeight.BOLD, 30));
 
-        lblHeader.setBounds(0, 30, 400, 40);
-        lblHeader.setFont(new Font("Arial", Font.BOLD, 20));
-        panel.add(lblHeader);
-        lblNama.setBounds(50, 100, 100, 25);
-        panel.add(lblNama);
-        txtNama.setBounds(150, 100, 180, 25);
-        panel.add(txtNama);
-        lblEmail.setBounds(50, 140, 100, 25);
-        panel.add(lblEmail);
-        txtEmail.setBounds(150, 140, 180, 25);
-        panel.add(txtEmail);
-        lblUser.setBounds(50, 180, 100, 25);
-        panel.add(lblUser);
-        txtUser.setBounds(150, 180, 180, 25);
-        panel.add(txtUser);
-        lblPass.setBounds(50, 220, 100, 25);
-        panel.add(lblPass);
-        txtPass.setBounds(150, 220, 180, 25);
-        panel.add(txtPass);
-        btnReg.setBounds(100, 280, 200, 35);
-        panel.add(btnReg);
-        btnToLogin.setBounds(100, 330, 200, 35);
-        panel.add(btnToLogin);
+        VBox userContainer = new VBox(5);
+        userContainer.setAlignment(Pos.CENTER_LEFT); // Align label to the left
+        Label lblUser = new Label("Username:");
+        TextField txtUser = new TextField();
+        txtUser.setPromptText("Username");
+        userContainer.getChildren().addAll(lblUser, txtUser);
 
-        //db
+        VBox passContainer = new VBox(5);
+        passContainer.setAlignment(Pos.CENTER_LEFT); // Align label to the left
+        Label lblPass = new Label("Password:");
+        PasswordField txtPass = new PasswordField();
+        txtPass.setPromptText("Password");
+        passContainer.getChildren().addAll(lblPass, txtPass);
+
+        Button btnLogin = new Button("Login");
+        btnLogin.setMaxWidth(Double.MAX_VALUE);
+        btnLogin.setStyle("-fx-background-color: #0078D7; " +
+                  "-fx-text-fill: white; " +
+                  "-fx-background-radius: 25; " + 
+                  "-fx-font-size: 14px; " +
+                  "-fx-font-weight: bold; " +
+                  "-fx-cursor: hand;");
+        btnLogin.setOnAction(e -> handleLogin(txtUser.getText(), txtPass.getText(), stage));
+
+        HBox registerBox = new HBox(5);
+        registerBox.setAlignment(Pos.CENTER);
+        Label lblNoAccount = new Label("Don't have an account?");
+        Hyperlink linkRegister = new Hyperlink("Register here");
+        
+        // Styling the hyperlink to look clean
+        linkRegister.setUnderline(true);
+        linkRegister.setOnAction(e -> {
+            loginView.setVisible(false);
+            registerView.setVisible(true);
+        });
+
+        registerBox.getChildren().addAll(lblNoAccount, linkRegister);
+
+        // Add everything to main vbox
+        vbox.getChildren().addAll(lblHeader, userContainer, passContainer, btnLogin, registerBox);
+        return vbox;
+    }
+
+    private VBox registerView(Stage stage) {
+        VBox vbox = new VBox(10);
+        vbox.setPadding(new Insets(30));
+        vbox.setAlignment(Pos.CENTER);
+
+        Label lblHeader = new Label("Register");
+        lblHeader.setFont(Font.font("Arial", FontWeight.BOLD, 30));
+
+        VBox namaContainer = new VBox(5);
+        namaContainer.setAlignment(Pos.CENTER_LEFT); // Align label to the left
+        Label lblNama = new Label("Full Name:");
+        TextField txtNama = new TextField();
+        txtNama.setPromptText("Full Name");
+        namaContainer.getChildren().addAll(lblNama, txtNama);
+
+        VBox emailContainer = new VBox(5);
+        emailContainer.setAlignment(Pos.CENTER_LEFT); // Align label to the left
+        Label lblEmail = new Label("Email:");
+        TextField txtEmail = new TextField();
+        txtEmail.setPromptText("Email");
+        emailContainer.getChildren().addAll(lblEmail, txtEmail);
+
+        VBox userContainer = new VBox(5);
+        userContainer.setAlignment(Pos.CENTER_LEFT); // Align label to the left
+        Label lblUser = new Label("Username:");
+        TextField txtUser = new TextField();
+        txtUser.setPromptText("Username");
+        userContainer.getChildren().addAll(lblUser, txtUser);
+
+        VBox passContainer = new VBox(5);
+        passContainer.setAlignment(Pos.CENTER_LEFT); // Align label to the left
+        Label lblPass = new Label("Password:");
+        TextField txtPass = new TextField();
+        txtPass.setPromptText("Password");
+        passContainer.getChildren().addAll(lblPass, txtPass);
+
+        
+        Button btnReg = new Button("Register");
+        btnReg.setMaxWidth(Double.MAX_VALUE);
+        btnReg.setStyle("-fx-background-color: #0078D7; " +
+                "-fx-text-fill: white; " +
+                "-fx-background-radius: 25; " +
+                "-fx-font-size: 14px; " +
+                "-fx-font-weight: bold; " +
+                "-fx-cursor: hand;");
+        btnReg.setOnAction(e -> handleRegister(txtNama.getText(), txtEmail.getText(), txtUser.getText(), txtPass.getText(), stage));
+
+        HBox loginBox = new HBox(5);
+        loginBox.setAlignment(Pos.CENTER);
+        Label lblHasAccount = new Label("Already have an account?");
+        Hyperlink linkLogin = new Hyperlink("Login here");
+        linkLogin.setUnderline(true);
+        linkLogin.setOnAction(e -> {
+            registerView.setVisible(false);
+            loginView.setVisible(true);
+        });
+        loginBox.getChildren().addAll(lblHasAccount, linkLogin);
+
+        vbox.getChildren().addAll(lblHeader, namaContainer, emailContainer, userContainer, passContainer, btnReg, loginBox);
+
+        return vbox;
+        // btnToLogin.setOnAction(e -> {
+        //     registerView.setVisible(false);
+        //     loginView.setVisible(true);
+        // });
+        // vbox.getChildren().addAll(lblHeader, txtNama, txtEmail, txtUser, txtPass, btnReg, btnToLogin);
+        // return vbox;
+    }
+
+    private void handleLogin(String user, String pass, Stage stage) {
         try {
-            conn = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD
-            );
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Failed To Connect!");
+            String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, user);
+            ps.setString(2, pass);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                User loggedUser = new User(rs.getInt("id_user"), rs.getString("username"), rs.getString("password"), rs.getString("email"), rs.getString("nama_lengkap"));
+                new Dashboard(loggedUser).start(new Stage());
+                stage.close();
+            } else {
+                showAlert("Login Failed", "Account Not Found!");
+            }
+        } catch (Exception ex) {
+            showAlert("Error", ex.getMessage());
         }
+    }
 
-        //ke page login
-        btnToLogin.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    cardLayout.show(mainPanel, "Login");
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
-                }
+    private void handleRegister(String nama, String email, String user, String pass, Stage stage) {
+        try {
+            if (user.isEmpty() || pass.isEmpty() || email.isEmpty()) {
+                showAlert("Warning", "Fields cannot be empty!");
+                return;
             }
-        });
 
-        //regist
-        btnReg.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    String namaLengkap = txtNama.getText();
-                    String email = txtEmail.getText();
-                    String username = txtUser.getText();
-                    String password = new String(txtPass.getPassword());
-
-                    if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
-                        JOptionPane.showMessageDialog(Authentication.this, "Fields cannot be empty!");
-                        return;
-                    }
-
-                    String checkSql = "SELECT * FROM users WHERE username = ?";
-                    PreparedStatement checkPs = conn.prepareStatement(checkSql);
-                    checkPs.setString(1, username);
-                    ResultSet checkRs = checkPs.executeQuery();
-                    
-                    if(checkRs.next()){
-                        JOptionPane.showMessageDialog(Authentication.this, "Username already taken.");
-                    }else{
-                        String insertSql = "INSERT INTO users (nama_lengkap, email, username, password) VALUES (?, ?, ?, ?)";
-                            PreparedStatement ps = conn.prepareStatement(insertSql);
-                            ps.setString(1, namaLengkap);
-                            ps.setString(2, email);
-                            ps.setString(3, username);
-                            ps.setString(4, password);
-                            int rowsAffected = ps.executeUpdate();
-                        if(rowsAffected > 0){
-                            ResultSet generatedKeys = ps.getGeneratedKeys();
-                                int newIdUser = generatedKeys.getInt(1);
-                            JOptionPane.showMessageDialog(Authentication.this, "Registration Successful!");
-                            Authentication.this.dispose();
-                            User newUser = new User(newIdUser, username, password, email, namaLengkap);
-                            new Dashboard(newUser).setVisible(true);
-                        }
-                    }
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
-                }
+            String insertSql = "INSERT INTO users (nama_lengkap, email, username, password) VALUES (?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, nama);
+            ps.setString(2, email);
+            ps.setString(3, user);
+            ps.setString(4, pass);
+            
+            if (ps.executeUpdate() > 0) {
+                ResultSet gk = ps.getGeneratedKeys();
+                gk.next();
+                User newUser = new User(gk.getInt(1), user, pass, email, nama);
+                new Dashboard(newUser).start(new Stage());
+                stage.close();
             }
-        });
-        return panel;
+        } catch (Exception ex) {
+            showAlert("Error", ex.getMessage());
+        }
+    }
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }
+
