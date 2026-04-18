@@ -36,7 +36,6 @@ public class Dashboard extends Application {
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #D5F4F9;");
 
-        // --- HEADER ---
         VBox header = new VBox(5);
         header.setPadding(new Insets(20));
         Label lblWelcome = new Label("Welcome, " + currentUser.getNamaLengkap());
@@ -46,13 +45,11 @@ public class Dashboard extends Application {
         lblTotal.setTextFill(Color.web("#0066CC"));
         header.getChildren().addAll(lblWelcome, new Label("Total Balance:"), lblTotal);
 
-        // --- WALLET LIST ---
         pnlListEmoney = new VBox(8);
         pnlListEmoney.setPadding(new Insets(15));
         pnlListEmoney.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
         updateWalletDisplay();
 
-        // --- TABLE (No Helper Class Version) ---
         tableTransaksi = new TableView<>();
         tableTransaksi.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tableTransaksi.setPrefHeight(100);
@@ -83,7 +80,6 @@ public class Dashboard extends Application {
         VBox centerContent = new VBox(15, new Label("Your Wallets:"), pnlListEmoney, new Label("Recent Transactions:"), tableTransaksi);
         centerContent.setPadding(new Insets(10, 20, 20, 20));
 
-        // --- NAVBAR ---
         HBox navbar = new HBox();
         navbar.setPrefHeight(50);
         Button btnHome = new Button("Home");
