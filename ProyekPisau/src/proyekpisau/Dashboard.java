@@ -14,6 +14,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public class Dashboard extends Application {
     private User currentUser;
@@ -50,6 +54,23 @@ public class Dashboard extends Application {
         pnlListEmoney.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
         updateWalletDisplay();
 
+        HBox methodBtns = new HBox(10);
+        methodBtns.setAlignment(Pos.CENTER);
+        Button btnAddMethod = new Button("Add Method");
+        btnAddMethod.setStyle("-fx-background-radius: 20; -fx-font-weight: bold; -fx-text-fill: white; -fx-cursor: hand; -fx-background-color: #28a745;");
+        Button btnDelMethod = new Button("Delete Method");
+        btnDelMethod.setStyle("-fx-background-radius: 20; -fx-font-weight: bold; -fx-text-fill: white; -fx-cursor: hand; -fx-background-color: #dc3545;");
+
+        btnAddMethod.setMaxWidth(Double.MAX_VALUE);
+        btnDelMethod.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(btnAddMethod, Priority.ALWAYS);
+        HBox.setHgrow(btnDelMethod, Priority.ALWAYS);
+
+        btnAddMethod.setOnAction(e -> addMethod());
+        btnDelMethod.setOnAction(e -> deleteMethod());
+
+        methodBtns.getChildren().addAll(btnAddMethod, btnDelMethod);
+
         tableTransaksi = new TableView<>();
         tableTransaksi.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tableTransaksi.setPrefHeight(100);
@@ -77,13 +98,35 @@ public class Dashboard extends Application {
         tableTransaksi.getColumns().addAll(colWallet, colJumlah);
         updateTransactionData();
 
-        VBox centerContent = new VBox(15, new Label("Your Wallets:"), pnlListEmoney, new Label("Recent Transactions:"), tableTransaksi);
+        VBox centerContent = new VBox(15, new Label("Your Wallets:"), pnlListEmoney, methodBtns, new Label("Recent Transactions:"), tableTransaksi);
         centerContent.setPadding(new Insets(10, 20, 20, 20));
 
+        ScrollPane scrollPane = new ScrollPane(centerContent);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;");
+
         HBox navbar = new HBox();
-        navbar.setPrefHeight(50);
+        navbar.setPrefHeight(30);
+        navbar.setStyle(
+            "-fx-background-color: #f4f4f4; " + 
+            "-fx-border-color: #ddd; " + 
+            "-fx-border-width: 1 0 0 0; " +
+            "-fx-background-insets: 0; " + 
+            "-fx-padding: 0;"              
+        );
         Button btnHome = new Button("Home");
         Button btnProfile = new Button("Profile");
+        String navBtnStyle = 
+            "-fx-background-color: transparent; " +
+            "-fx-font-weight: bold; " +
+            "-fx-text-fill: #555; " +
+            "-fx-cursor: hand; " +
+            "-fx-font-size: 14; " +
+            "-fx-background-radius: 0; " + 
+            "-fx-background-insets: 0;";
+
+        btnHome.setStyle(navBtnStyle);
+        btnProfile.setStyle(navBtnStyle);
         btnHome.setOnAction(e -> {
             loadList();
             lblTotal.setText("Rp " + String.format("%,.2f", currentUser.getTotalSaldo()));
@@ -103,6 +146,130 @@ public class Dashboard extends Application {
         primaryStage.setTitle("PISAU Dashboard");
         primaryStage.setScene(new Scene(root, 400, 500));
         primaryStage.show();
+    }
+
+    //progress
+    private void addMethod(){
+        List<String> emoneyLain = new ArrayList<>();
+    
+        String sql = "SELECT nama_layanan FROM jenis_emoney " +
+                    "WHERE id_jenis_emoney NOT IN (" +
+                    "    SELECT id_jenis_emoney FROM user_emoney WHERE id_user = ?" +
+                    ")";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, currentUser.getIdUser());
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                emoneyLain.add(rs.getString("nama_layanan"));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+
+        if (emoneyLain.isEmpty()) {
+            showAlert("All available e-money types are already linked!");
+            return;
+        }
+
+        ChoiceDialog<String> choiceDlg = new ChoiceDialog<>(emoneyLain.get(0), emoneyLain);
+        choiceDlg.setTitle("Add Wallet");
+        choiceDlg.setHeaderText("Link a new account");
+        
+        choiceDlg.showAndWait().ifPresent(jenisEmoney -> {
+            TextInputDialog idDlg = new TextInputDialog();
+            idDlg.setHeaderText("Enter Account Details for " + jenisEmoney);
+            idDlg.setContentText("Account ID / Phone Number:");
+            
+            idDlg.showAndWait().ifPresent(noIdentitas -> {
+                TextInputDialog pinDlg = new TextInputDialog();
+                pinDlg.setHeaderText("Security Check");
+                pinDlg.setContentText("Enter Pass/PIN:");
+                
+                pinDlg.showAndWait().ifPresent(passEmoney -> {
+                    linkEmoneyAccount(jenisEmoney, noIdentitas, passEmoney);
+                });
+            });
+        });
+    }
+
+    private void deleteMethod(){
+        List<String> emoneySaatIni = new ArrayList<>();
+    
+        String sqlSelect = "SELECT je.nama_layanan FROM user_emoney ue JOIN jenis_emoney je ON ue.id_jenis_emoney = je.id_jenis_emoney WHERE ue.id_user = ?";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            PreparedStatement psSelect = conn.prepareStatement(sqlSelect);
+            psSelect.setInt(1, currentUser.getIdUser());
+            ResultSet rs = psSelect.executeQuery();
+            while (rs.next()) {
+                emoneySaatIni.add(rs.getString("nama_layanan"));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+
+        if (emoneySaatIni.isEmpty()) {
+            showAlert("You don't have any wallets!");
+            return;
+        }
+
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(emoneySaatIni.get(0), emoneySaatIni);
+        dialog.setTitle("Delete Wallet");
+        dialog.setHeaderText("Remove an E-Money account");
+        dialog.setContentText("Choose wallet to disconnect:");
+
+        dialog.showAndWait().ifPresent(jenisEmoney -> {
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Confirmation");
+            confirm.setHeaderText("Are you sure?");
+            confirm.setContentText("This will unlink " + jenisEmoney + " from your account.");
+
+            if (confirm.showAndWait().get() == ButtonType.OK) {
+                deleteEmoneyAccount(jenisEmoney);
+            }
+        });
+    }
+
+    private void deleteEmoneyAccount(String jenisEmoney) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            String sqlUpdate = "UPDATE user_emoney ue " +
+                            "JOIN jenis_emoney je ON ue.id_jenis_emoney = je.id_jenis_emoney " +
+                            "SET ue.id_user = NULL " +
+                            "WHERE je.nama_layanan = ? AND ue.id_user = ?";
+            
+            PreparedStatement ps = conn.prepareStatement(sqlUpdate);
+            ps.setString(1, jenisEmoney);
+            ps.setInt(2, currentUser.getIdUser());
+
+            if (ps.executeUpdate() > 0) {
+                showAlert("Account " + jenisEmoney + " has been disconnected.");
+                loadList();
+                lblTotal.setText("Rp " + String.format("%,.2f", currentUser.getTotalSaldo()));
+                updateWalletDisplay();
+                updateTransactionData();
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+    }  
+
+    private void linkEmoneyAccount(String jenisEmoney, String noIdentitas, String passEmoney) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            String sql = "UPDATE user_emoney ue JOIN jenis_emoney je ON ue.id_jenis_emoney = je.id_jenis_emoney SET ue.id_user = ? WHERE je.nama_layanan = ? AND ue.nomor_identitas = ? AND ue.pass_emoney = ? AND ue.id_user IS NULL";
+            
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, currentUser.getIdUser());
+            ps.setString(2, jenisEmoney);
+            ps.setString(3, noIdentitas);
+            ps.setString(4, passEmoney);
+
+            if (ps.executeUpdate() > 0) {
+                showAlert("Success! Account linked.");
+                loadList();
+                lblTotal.setText("Rp " + String.format("%,.2f", currentUser.getTotalSaldo()));
+                updateWalletDisplay();
+                updateTransactionData();
+            } else {
+                showAlert("Error: Account not found.");
+            }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void updateWalletDisplay() {
@@ -154,5 +321,11 @@ public class Dashboard extends Application {
                 else if (jenisEmoney == 4) currentUser.tambahMetode(new Dana(id, noIdentitas, saldo));
             }
         } catch (Exception ex) { ex.printStackTrace(); }
+    }
+
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
