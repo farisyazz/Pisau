@@ -5,13 +5,13 @@
 ---
 
 # 👤 Identitas Pengembang
-- Farisya Satya Utami (09021382429140)
-- Hilya Rosidah (09021182429020)
-- Adventha Dwi Cristia Putri (09021382429133)
-- Amanda Alya Nur Afla (09021182429010)
-- Enjelica Anggryan (09021382429127)
-- M. Fadhil Pratama (09021282429121)
-- Roitona Takaya (09021382429129)
+- Farisya Satya Utami_09021382429140 (Programmer)
+- Hilya Rosidah_09021182429020 (Programmer)
+- Adventha Dwi Cristia Putri_09021382429133 (UI/UX)
+- Amanda Alya Nur Afla_09021182429010 (UI/UX)
+- Enjelica Anggryan_09021382429127 (Database Administrator)
+- M. Fadhil Pratama_09021282429121 (Database Administrator)
+- Roitona Takaya_09021382429129 (Project Manager)
 
 ---
 
