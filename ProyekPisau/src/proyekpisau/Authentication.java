@@ -82,7 +82,6 @@ public class Authentication extends Application {
         Label lblNoAccount = new Label("Don't have an account?");
         Hyperlink linkRegister = new Hyperlink("Register here");
         
-        // Styling the hyperlink to look clean
         linkRegister.setUnderline(true);
         linkRegister.setOnAction(e -> {
             loginView.setVisible(false);
@@ -212,4 +211,3 @@ public class Authentication extends Application {
         alert.showAndWait();
     }
 }
-

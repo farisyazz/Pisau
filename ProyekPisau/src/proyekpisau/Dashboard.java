@@ -1,3 +1,4 @@
+
 package proyekpisau;
 
 import javafx.application.Application;
@@ -6,6 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -15,9 +17,7 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class Dashboard extends Application {
     private User currentUser;
@@ -25,6 +25,7 @@ public class Dashboard extends Application {
     private final String DB_USER = "root";
     private final String DB_PASSWORD = "";
     
+    private BorderPane root;
     private Label lblTotal;
     private VBox pnlListEmoney;
     private TableView<String[]> tableTransaksi;
@@ -37,9 +38,59 @@ public class Dashboard extends Application {
     public void start(Stage primaryStage) {
         loadList();
 
-        BorderPane root = new BorderPane();
+        root = new BorderPane();
         root.setStyle("-fx-background-color: #D5F4F9;");
 
+        //set default view (home)
+        root.setCenter(getHomeView());
+
+        //navbar menu
+        HBox navbar = new HBox();
+        navbar.setPrefHeight(40);
+        navbar.setStyle(
+            "-fx-background-color: white; " + 
+            "-fx-border-color: #ddd; " + 
+            "-fx-border-width: 1 0 0 0; "
+        );
+
+        Button btnHome = new Button("Home");
+        Button btnReport = new Button("Transaction Report");
+        
+        String navBtnStyle = 
+            "-fx-background-color: transparent; " +
+            "-fx-font-weight: bold; " +
+            "-fx-text-fill: #555; " +
+            "-fx-cursor: hand; " +
+            "-fx-font-size: 14; ";
+
+        btnHome.setStyle(navBtnStyle);
+        btnReport.setStyle(navBtnStyle);
+        
+        btnHome.setMaxWidth(Double.MAX_VALUE); 
+        btnReport.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(btnHome, Priority.ALWAYS); 
+        HBox.setHgrow(btnReport, Priority.ALWAYS);
+
+        //routing navbar
+        btnHome.setOnAction(e -> {
+            loadList();
+            root.setCenter(getHomeView()); 
+        });
+
+        btnReport.setOnAction(e -> {
+            ReportPage reportPage = new ReportPage(currentUser);
+            root.setCenter(reportPage.getView()); 
+        });
+
+        navbar.getChildren().addAll(btnHome, btnReport);
+        root.setBottom(navbar);
+
+        primaryStage.setTitle("PISAU Dashboard");
+        primaryStage.setScene(new Scene(root, 400, 550)); 
+        primaryStage.show();
+    }
+
+    private Node getHomeView() {
         VBox header = new VBox(5);
         header.setPadding(new Insets(20));
         Label lblWelcome = new Label("Welcome, " + currentUser.getNamaLengkap());
@@ -47,7 +98,10 @@ public class Dashboard extends Application {
         lblTotal = new Label("Rp " + String.format("%,.2f", currentUser.getTotalSaldo()));
         lblTotal.setFont(Font.font("Arial", FontWeight.BOLD, 24));
         lblTotal.setTextFill(Color.web("#0066CC"));
-        header.getChildren().addAll(lblWelcome, new Label("Total Balance:"), lblTotal);
+        
+        Label lblTotalBalanceTitle = new Label("Total Balance:");
+        lblTotalBalanceTitle.setStyle("-fx-text-fill: #333333;");
+        header.getChildren().addAll(lblWelcome, lblTotalBalanceTitle, lblTotal);
 
         pnlListEmoney = new VBox(8);
         pnlListEmoney.setPadding(new Insets(15));
@@ -68,17 +122,22 @@ public class Dashboard extends Application {
 
         btnAddMethod.setOnAction(e -> addMethod());
         btnDelMethod.setOnAction(e -> deleteMethod());
-
         methodBtns.getChildren().addAll(btnAddMethod, btnDelMethod);
 
         tableTransaksi = new TableView<>();
         tableTransaksi.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tableTransaksi.setPrefHeight(100);
 
-        TableColumn<String[], String> colWallet = new TableColumn<>("Wallet");
+        Label headerWallet = new Label("Wallet");
+        headerWallet.setStyle("-fx-text-fill: black; -fx-font-weight: bold;");
+        TableColumn<String[], String> colWallet = new TableColumn<>();
+        colWallet.setGraphic(headerWallet);
         colWallet.setCellValueFactory(data -> new SimpleStringProperty(data.getValue()[0]));
 
-        TableColumn<String[], String> colJumlah = new TableColumn<>("Amount");
+        Label headerJumlah = new Label("Amount");
+        headerJumlah.setStyle("-fx-text-fill: black; -fx-font-weight: bold;");
+        TableColumn<String[], String> colJumlah = new TableColumn<>();
+        colJumlah.setGraphic(headerJumlah);
         colJumlah.setCellValueFactory(data -> new SimpleStringProperty(data.getValue()[1]));
 
         colJumlah.setCellFactory(column -> new TableCell<String[], String>() {
@@ -98,73 +157,35 @@ public class Dashboard extends Application {
         tableTransaksi.getColumns().addAll(colWallet, colJumlah);
         updateTransactionData();
 
-        VBox centerContent = new VBox(15, new Label("Your Wallets:"), pnlListEmoney, methodBtns, new Label("Recent Transactions:"), tableTransaksi);
+        Label lblWallets = new Label("Your Wallets:");
+        lblWallets.setStyle("-fx-text-fill: #333333; -fx-font-weight: bold;");
+
+        Label lblRecent = new Label("Recent Transactions:");
+        lblRecent.setStyle("-fx-text-fill: #333333; -fx-font-weight: bold;");
+
+        VBox centerContent = new VBox(15, lblWallets, pnlListEmoney, methodBtns, lblRecent, tableTransaksi);
         centerContent.setPadding(new Insets(10, 20, 20, 20));
 
+        BorderPane homePane = new BorderPane();
+        homePane.setTop(header);
+        
         ScrollPane scrollPane = new ScrollPane(centerContent);
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;");
-
-        HBox navbar = new HBox();
-        navbar.setPrefHeight(30);
-        navbar.setStyle(
-            "-fx-background-color: #f4f4f4; " + 
-            "-fx-border-color: #ddd; " + 
-            "-fx-border-width: 1 0 0 0; " +
-            "-fx-background-insets: 0; " + 
-            "-fx-padding: 0;"              
-        );
-        Button btnHome = new Button("Home");
-        Button btnProfile = new Button("Profile");
-        String navBtnStyle = 
-            "-fx-background-color: transparent; " +
-            "-fx-font-weight: bold; " +
-            "-fx-text-fill: #555; " +
-            "-fx-cursor: hand; " +
-            "-fx-font-size: 14; " +
-            "-fx-background-radius: 0; " + 
-            "-fx-background-insets: 0;";
-
-        btnHome.setStyle(navBtnStyle);
-        btnProfile.setStyle(navBtnStyle);
-        btnHome.setOnAction(e -> {
-            loadList();
-            lblTotal.setText("Rp " + String.format("%,.2f", currentUser.getTotalSaldo()));
-            updateWalletDisplay();
-            updateTransactionData();
-        });
-        btnHome.setMaxWidth(Double.MAX_VALUE); 
-        btnProfile.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(btnHome, Priority.ALWAYS); 
-        HBox.setHgrow(btnProfile, Priority.ALWAYS);
-        navbar.getChildren().addAll(btnHome, btnProfile);
-
-        root.setTop(header);
-        root.setCenter(centerContent);
-        root.setBottom(navbar);
-
-        primaryStage.setTitle("PISAU Dashboard");
-        primaryStage.setScene(new Scene(root, 400, 500));
-        primaryStage.show();
+        homePane.setCenter(scrollPane);
+        
+        return homePane;
     }
 
-    //progress
     private void addMethod(){
         List<String> emoneyLain = new ArrayList<>();
-    
-        String sql = "SELECT nama_layanan FROM jenis_emoney " +
-                    "WHERE id_jenis_emoney NOT IN (" +
-                    "    SELECT id_jenis_emoney FROM user_emoney WHERE id_user = ?" +
-                    ")";
+        String sql = "SELECT nama_layanan FROM jenis_emoney WHERE id_jenis_emoney NOT IN (SELECT id_jenis_emoney FROM user_emoney WHERE id_user = ?)";
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, currentUser.getIdUser());
             ResultSet rs = ps.executeQuery();
-            
-            while (rs.next()) {
-                emoneyLain.add(rs.getString("nama_layanan"));
-            }
+            while (rs.next()) { emoneyLain.add(rs.getString("nama_layanan")); }
         } catch (Exception e) { e.printStackTrace(); }
 
         if (emoneyLain.isEmpty()) {
@@ -175,17 +196,14 @@ public class Dashboard extends Application {
         ChoiceDialog<String> choiceDlg = new ChoiceDialog<>(emoneyLain.get(0), emoneyLain);
         choiceDlg.setTitle("Add Wallet");
         choiceDlg.setHeaderText("Link a new account");
-        
         choiceDlg.showAndWait().ifPresent(jenisEmoney -> {
             TextInputDialog idDlg = new TextInputDialog();
             idDlg.setHeaderText("Enter Account Details for " + jenisEmoney);
             idDlg.setContentText("Account ID / Phone Number:");
-            
             idDlg.showAndWait().ifPresent(noIdentitas -> {
                 TextInputDialog pinDlg = new TextInputDialog();
                 pinDlg.setHeaderText("Security Check");
                 pinDlg.setContentText("Enter Pass/PIN:");
-                
                 pinDlg.showAndWait().ifPresent(passEmoney -> {
                     linkEmoneyAccount(jenisEmoney, noIdentitas, passEmoney);
                 });
@@ -195,16 +213,13 @@ public class Dashboard extends Application {
 
     private void deleteMethod(){
         List<String> emoneySaatIni = new ArrayList<>();
-    
         String sqlSelect = "SELECT je.nama_layanan FROM user_emoney ue JOIN jenis_emoney je ON ue.id_jenis_emoney = je.id_jenis_emoney WHERE ue.id_user = ?";
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
             PreparedStatement psSelect = conn.prepareStatement(sqlSelect);
             psSelect.setInt(1, currentUser.getIdUser());
             ResultSet rs = psSelect.executeQuery();
-            while (rs.next()) {
-                emoneySaatIni.add(rs.getString("nama_layanan"));
-            }
+            while (rs.next()) { emoneySaatIni.add(rs.getString("nama_layanan")); }
         } catch (Exception e) { e.printStackTrace(); }
 
         if (emoneySaatIni.isEmpty()) {
@@ -216,13 +231,11 @@ public class Dashboard extends Application {
         dialog.setTitle("Delete Wallet");
         dialog.setHeaderText("Remove an E-Money account");
         dialog.setContentText("Choose wallet to disconnect:");
-
         dialog.showAndWait().ifPresent(jenisEmoney -> {
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
             confirm.setTitle("Confirmation");
             confirm.setHeaderText("Are you sure?");
             confirm.setContentText("This will unlink " + jenisEmoney + " from your account.");
-
             if (confirm.showAndWait().get() == ButtonType.OK) {
                 deleteEmoneyAccount(jenisEmoney);
             }
@@ -231,21 +244,14 @@ public class Dashboard extends Application {
 
     private void deleteEmoneyAccount(String jenisEmoney) {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            String sqlUpdate = "UPDATE user_emoney ue " +
-                            "JOIN jenis_emoney je ON ue.id_jenis_emoney = je.id_jenis_emoney " +
-                            "SET ue.id_user = NULL " +
-                            "WHERE je.nama_layanan = ? AND ue.id_user = ?";
-            
+            String sqlUpdate = "UPDATE user_emoney ue JOIN jenis_emoney je ON ue.id_jenis_emoney = je.id_jenis_emoney SET ue.id_user = NULL WHERE je.nama_layanan = ? AND ue.id_user = ?";
             PreparedStatement ps = conn.prepareStatement(sqlUpdate);
             ps.setString(1, jenisEmoney);
             ps.setInt(2, currentUser.getIdUser());
-
             if (ps.executeUpdate() > 0) {
                 showAlert("Account " + jenisEmoney + " has been disconnected.");
                 loadList();
-                lblTotal.setText("Rp " + String.format("%,.2f", currentUser.getTotalSaldo()));
-                updateWalletDisplay();
-                updateTransactionData();
+                root.setCenter(getHomeView()); 
             }
         } catch (Exception e) { e.printStackTrace(); }
     }  
@@ -253,21 +259,17 @@ public class Dashboard extends Application {
     private void linkEmoneyAccount(String jenisEmoney, String noIdentitas, String passEmoney) {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
             String sql = "UPDATE user_emoney ue JOIN jenis_emoney je ON ue.id_jenis_emoney = je.id_jenis_emoney SET ue.id_user = ? WHERE je.nama_layanan = ? AND ue.nomor_identitas = ? AND ue.pass_emoney = ? AND ue.id_user IS NULL";
-            
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, currentUser.getIdUser());
             ps.setString(2, jenisEmoney);
             ps.setString(3, noIdentitas);
             ps.setString(4, passEmoney);
-
             if (ps.executeUpdate() > 0) {
                 showAlert("Success! Account linked.");
                 loadList();
-                lblTotal.setText("Rp " + String.format("%,.2f", currentUser.getTotalSaldo()));
-                updateWalletDisplay();
-                updateTransactionData();
+                root.setCenter(getHomeView()); 
             } else {
-                showAlert("Error: Account not found.");
+                showAlert("Error: Account not found or wrong credentials.");
             }
         } catch (Exception e) { e.printStackTrace(); }
     }
@@ -276,10 +278,17 @@ public class Dashboard extends Application {
         pnlListEmoney.getChildren().clear();
         for (EMoney emoney : currentUser.getListEmoney()) {
             HBox row = new HBox();
+            row.setAlignment(Pos.CENTER_LEFT); 
+            
             Label lblJenis = new Label(emoney.getJenisEmoney());
+            lblJenis.setStyle("-fx-text-fill: #333333; -fx-font-size: 14px;"); 
+            
             Region sp = new Region(); 
             HBox.setHgrow(sp, Priority.ALWAYS);
+            
             Label lblSaldo = new Label("Rp " + String.format("%,.0f", (double)emoney.getSaldo()));
+            lblSaldo.setStyle("-fx-text-fill: #333333; -fx-font-size: 14px;");
+            
             row.getChildren().addAll(lblJenis, sp, lblSaldo);
             pnlListEmoney.getChildren().add(row);
         }
@@ -288,10 +297,7 @@ public class Dashboard extends Application {
     private void updateTransactionData() {
         ObservableList<String[]> data = FXCollections.observableArrayList();
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            String sql = "SELECT je.nama_layanan, log.jumlah, log.tipe_transaksi FROM log_transaksi log " +
-                         "JOIN user_emoney ue ON log.id_user_emoney = ue.id_user_emoney " +
-                         "JOIN jenis_emoney je ON ue.id_jenis_emoney = je.id_jenis_emoney " +
-                         "WHERE ue.id_user = ? ORDER BY log.waktu_transaksi DESC LIMIT 3";
+            String sql = "SELECT je.nama_layanan, log.jumlah, log.tipe_transaksi FROM log_transaksi log JOIN user_emoney ue ON log.id_user_emoney = ue.id_user_emoney JOIN jenis_emoney je ON ue.id_jenis_emoney = je.id_jenis_emoney WHERE ue.id_user = ? ORDER BY log.waktu_transaksi DESC LIMIT 3";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, currentUser.getIdUser());
             ResultSet rs = ps.executeQuery();

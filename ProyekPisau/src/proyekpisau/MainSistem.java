@@ -7,4 +7,3 @@ public class MainSistem {
         Application.launch(Authentication.class, args);
     }
 }
-

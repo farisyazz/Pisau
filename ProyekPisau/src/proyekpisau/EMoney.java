@@ -40,11 +40,6 @@ public class EMoney {
     public void setSaldo(int saldo){
         this.saldo = saldo;
     }
-    
-    //others
-    // public void feeBulanan(){
-    //     System.out.println("Tidak ada fee bulanan.");
-    // }
 }
 
 class Mandiri extends EMoney {
