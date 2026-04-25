@@ -31,17 +31,18 @@ public class ReportPage {
 
     public ScrollPane getView() {
         VBox container = new VBox(15);
-        container.setPadding(new Insets(20));
-        container.setStyle("-fx-background-color: #D5F4F9;");
+        container.setPadding(new Insets(25));
+        container.setStyle("-fx-background-color: #F8FAFC;");
 
         //header title
         Label lblTitle = new Label("Transaction Report");
         lblTitle.setFont(Font.font("Arial", FontWeight.BOLD, 24));
-        lblTitle.setTextFill(Color.web("#0066CC"));
+        lblTitle.setTextFill(Color.web("#1E293B"));
 
         //filtering area (dikurangi spacing-nya dari 8 ke 5 agar lebih muat)
-        HBox filterBox = new HBox(5);
+        HBox filterBox = new HBox(10);
         filterBox.setAlignment(Pos.CENTER_LEFT);
+        filterBox.setPadding(new Insets(5, 0, 5, 0));
 
         //label filter bulan 
         Label lblBulan = new Label("Month:");
@@ -52,6 +53,7 @@ public class ReportPage {
         cbBulan.getItems().addAll("All Months", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12");
         cbBulan.setValue("All Months");
         cbBulan.setPrefWidth(90); 
+        cbBulan.setStyle("-fx-background-radius: 8; -fx-background-color: white; -fx-border-color: #E2E8F0; -fx-border-radius: 8;");
 
         //label filter wallet 
         Label lblWallet = new Label("Wallet:");
@@ -63,9 +65,10 @@ public class ReportPage {
         loadUserWallets();
         cbEmoney.setValue("All Wallet");
         cbEmoney.setPrefWidth(90); 
+        cbEmoney.setStyle("-fx-background-radius: 8; -fx-background-color: white; -fx-border-color: #E2E8F0; -fx-border-radius: 8;");
 
         Button btnFilter = new Button("Apply");
-        btnFilter.setStyle("-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;");
+        btnFilter.setStyle("-fx-background-color: #2D5295; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 20; -fx-cursor: hand;");
         btnFilter.setMinWidth(Region.USE_PREF_SIZE); 
         btnFilter.setOnAction(e -> loadTransactionData());
 
@@ -74,8 +77,16 @@ public class ReportPage {
         //table data area
         tableReport = new TableView<>();
         tableReport.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        tableReport.setPrefHeight(300);
-        
+        tableReport.setPrefHeight(320);
+        tableReport.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #E2E8F0; -fx-table-cell-border-color: transparent;"); 
+        tableReport.setRowFactory(tv -> new TableRow<String[]>() {
+            @Override
+            protected void updateItem(String[] item, boolean empty) {
+                super.updateItem(item, empty);
+                setStyle("-fx-background-color: white;"); // Forces all rows to be white
+            }
+        });
+
         Label headerTanggal = new Label("Date");
         headerTanggal.setStyle("-fx-text-fill: black; -fx-font-weight: bold;");
         TableColumn<String[], String> colTanggal = new TableColumn<>();
@@ -102,7 +113,7 @@ public class ReportPage {
                     setText(null); setStyle("");
                 } else {
                     setText(item);
-                    setTextFill(item.contains("+") ? Color.GREEN : Color.RED);
+                    setTextFill(item.contains("+") ? Color.web("#10B981") : Color.web("#EF4444"));
                     setStyle("-fx-font-weight: bold;");
                 }
             }
@@ -111,16 +122,15 @@ public class ReportPage {
         tableReport.getColumns().addAll(colTanggal, colWallet, colJumlah);
 
         //summary area (total transaksi masuk & keluar)
-        VBox summaryBox = new VBox(5);
-        summaryBox.setPadding(new Insets(15));
-        summaryBox.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
-        
+        VBox summaryBox = new VBox(8);
+        summaryBox.setPadding(new Insets(15, 20, 15, 20));
+        summaryBox.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
         lblTotalPemasukan = new Label("Total Pemasukan: Rp 0.00");
-        lblTotalPemasukan.setTextFill(Color.GREEN);
+        lblTotalPemasukan.setTextFill(Color.web("#10B981")); //green
         lblTotalPemasukan.setFont(Font.font("Arial", FontWeight.BOLD, 16));
 
         lblTotalPengeluaran = new Label("Total Pengeluaran: Rp 0.00");
-        lblTotalPengeluaran.setTextFill(Color.RED);
+        lblTotalPengeluaran.setTextFill(Color.web("#EF4444"));
         lblTotalPengeluaran.setFont(Font.font("Arial", FontWeight.BOLD, 16));
 
         summaryBox.getChildren().addAll(lblTotalPemasukan, lblTotalPengeluaran);
@@ -131,7 +141,7 @@ public class ReportPage {
         
         ScrollPane scrollPane = new ScrollPane(container);
         scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: #D5F4F9; -fx-padding: 0;");
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: #F8FAFC; -fx-padding: 0;");
         return scrollPane;
     }
 
