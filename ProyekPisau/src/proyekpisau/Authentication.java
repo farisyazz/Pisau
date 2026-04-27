@@ -55,7 +55,7 @@ public class Authentication extends Application {
         Image logo = new Image(getClass().getResourceAsStream("/res/knife.png"));
         ImageView imgLogo = new ImageView(logo);
         
-        imgLogo.setFitWidth(70); 
+        imgLogo.setFitWidth(90); 
         imgLogo.setPreserveRatio(true);
 
         Label lblHeader = new Label("Login");
@@ -111,7 +111,7 @@ public class Authentication extends Application {
         Image logo = new Image(getClass().getResourceAsStream("/res/knife.png"));
         ImageView imgLogo = new ImageView(logo);
         
-        imgLogo.setFitWidth(70); 
+        imgLogo.setFitWidth(90); 
         imgLogo.setPreserveRatio(true);
 
         Label lblHeader = new Label("Register");
