@@ -5,6 +5,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -32,7 +34,7 @@ public class Authentication extends Application {
         registerView.setVisible(false); 
 
         Scene scene = new Scene(root, 400, 500);
-        primaryStage.setTitle("Sistem Manajeman Pembayaran PISAU");
+        primaryStage.setTitle("PISAU");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -50,18 +52,24 @@ public class Authentication extends Application {
         vbox.setPadding(new Insets(40));
         vbox.setAlignment(Pos.CENTER);
 
+        Image logo = new Image(getClass().getResourceAsStream("/res/knife.png"));
+        ImageView imgLogo = new ImageView(logo);
+        
+        imgLogo.setFitWidth(70); 
+        imgLogo.setPreserveRatio(true);
+
         Label lblHeader = new Label("Login");
         lblHeader.setFont(Font.font("Arial", FontWeight.BOLD, 30));
 
         VBox userContainer = new VBox(5);
-        userContainer.setAlignment(Pos.CENTER_LEFT); // Align label to the left
+        userContainer.setAlignment(Pos.CENTER_LEFT); 
         Label lblUser = new Label("Username:");
         TextField txtUser = new TextField();
         txtUser.setPromptText("Username");
         userContainer.getChildren().addAll(lblUser, txtUser);
 
         VBox passContainer = new VBox(5);
-        passContainer.setAlignment(Pos.CENTER_LEFT); // Align label to the left
+        passContainer.setAlignment(Pos.CENTER_LEFT); 
         Label lblPass = new Label("Password:");
         PasswordField txtPass = new PasswordField();
         txtPass.setPromptText("Password");
@@ -90,7 +98,8 @@ public class Authentication extends Application {
 
         registerBox.getChildren().addAll(lblNoAccount, linkRegister);
 
-        vbox.getChildren().addAll(lblHeader, userContainer, passContainer, btnLogin, registerBox);
+        // Add everything to main vbox
+        vbox.getChildren().addAll(imgLogo, lblHeader, userContainer, passContainer, btnLogin, registerBox);
         return vbox;
     }
 
@@ -99,32 +108,38 @@ public class Authentication extends Application {
         vbox.setPadding(new Insets(30));
         vbox.setAlignment(Pos.CENTER);
 
+        Image logo = new Image(getClass().getResourceAsStream("/res/knife.png"));
+        ImageView imgLogo = new ImageView(logo);
+        
+        imgLogo.setFitWidth(70); 
+        imgLogo.setPreserveRatio(true);
+
         Label lblHeader = new Label("Register");
         lblHeader.setFont(Font.font("Arial", FontWeight.BOLD, 30));
 
         VBox namaContainer = new VBox(5);
-        namaContainer.setAlignment(Pos.CENTER_LEFT); 
+        namaContainer.setAlignment(Pos.CENTER_LEFT); // Align label to the left
         Label lblNama = new Label("Full Name:");
         TextField txtNama = new TextField();
         txtNama.setPromptText("Full Name");
         namaContainer.getChildren().addAll(lblNama, txtNama);
 
         VBox emailContainer = new VBox(5);
-        emailContainer.setAlignment(Pos.CENTER_LEFT); 
+        emailContainer.setAlignment(Pos.CENTER_LEFT); // Align label to the left
         Label lblEmail = new Label("Email:");
         TextField txtEmail = new TextField();
         txtEmail.setPromptText("Email");
         emailContainer.getChildren().addAll(lblEmail, txtEmail);
 
         VBox userContainer = new VBox(5);
-        userContainer.setAlignment(Pos.CENTER_LEFT); 
+        userContainer.setAlignment(Pos.CENTER_LEFT); // Align label to the left
         Label lblUser = new Label("Username:");
         TextField txtUser = new TextField();
         txtUser.setPromptText("Username");
         userContainer.getChildren().addAll(lblUser, txtUser);
 
         VBox passContainer = new VBox(5);
-        passContainer.setAlignment(Pos.CENTER_LEFT); 
+        passContainer.setAlignment(Pos.CENTER_LEFT); // Align label to the left
         Label lblPass = new Label("Password:");
         TextField txtPass = new TextField();
         txtPass.setPromptText("Password");
@@ -152,7 +167,7 @@ public class Authentication extends Application {
         });
         loginBox.getChildren().addAll(lblHasAccount, linkLogin);
 
-        vbox.getChildren().addAll(lblHeader, namaContainer, emailContainer, userContainer, passContainer, btnReg, loginBox);
+        vbox.getChildren().addAll(imgLogo, lblHeader, namaContainer, emailContainer, userContainer, passContainer, btnReg, loginBox);
 
         return vbox;
     }
@@ -211,3 +226,4 @@ public class Authentication extends Application {
         alert.showAndWait();
     }
 }
+

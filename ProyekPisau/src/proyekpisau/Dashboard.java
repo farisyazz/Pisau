@@ -333,7 +333,9 @@ public class Dashboard extends Application {
         for (EMoney emoney : currentUser.getListEmoney()) {
             HBox row = new HBox();
             row.setAlignment(Pos.CENTER_LEFT);
-            row.setPadding(new Insets(10, 15, 10, 15));
+            row.setPadding(new Insets(0, 15, 0, 15));
+            row.setPrefHeight(50); 
+            row.setMinHeight(50);
             row.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
                       "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);");
 
@@ -343,7 +345,7 @@ public class Dashboard extends Application {
                 logoImg = new Image(getClass().getResourceAsStream(logoPath));
             } catch (Exception e) {
                 // Placeholder if logo not found
-                logoImg = new Image(getClass().getResourceAsStream("/res/logos/default_logo.png"));
+                logoImg = new Image(getClass().getResourceAsStream("/res/default_logo.png"));
             }
             ImageView logoView = new ImageView(logoImg);
             logoView.setFitWidth(30); 
